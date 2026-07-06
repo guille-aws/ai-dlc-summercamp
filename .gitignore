@@ -18,3 +18,7 @@ venv/
 
 # Temporary folders
 tmp/
+
+# AWS CDK
+cdk.out/
+.cdk.staging/
