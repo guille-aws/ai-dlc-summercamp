@@ -35,9 +35,9 @@
 ### CONSTRUCTION - Per-Unit Loop (build order U0 → U1 → U2/U3/U4 → U5 → U6 → U7)
 - [x] U0 Infrastructure: Infra Design (COMPLETED), Code Gen (COMPLETED - 9 CDK stacks synth-verified, awaiting approval)
 - [x] U1 Shared Platform: FD, NFR Req, NFR Design, Infra Design, Code Gen (COMPLETED - clairo_shared lib, imports+logic verified, awaiting approval)
-- [ ] U2 Intake: FD, NFR Req, NFR Design, Infra Design, Code Gen
-- [ ] U3 Adjudication: FD, NFR Req, NFR Design, Infra Design, Code Gen
-- [ ] U4 Compliance: FD, NFR Req, NFR Design, Infra Design, Code Gen
+- [x] U2 Intake: FD, NFR Req, NFR Design, Infra Design, Code Gen (COMPLETED - services/intake, synth+logic verified, awaiting approval)
+- [x] U3 Adjudication: FD, NFR Req, NFR Design, Infra Design, Code Gen (COMPLETED - services/adjudication, synth+logic verified, awaiting approval)
+- [ ] U4 Compliance: FD (COMPLETED - awaiting approval), NFR Req, NFR Design, Infra Design, Code Gen
 - [ ] U5 HITL/API/Orchestration: FD, NFR Req, NFR Design, Infra Design, Code Gen
 - [ ] U6 Feedback: FD, Infra Design, Code Gen
 - [ ] U7 Web UI: FD, NFR Req, Infra Design, Code Gen
@@ -45,9 +45,10 @@
 
 ## Current Status
 - **Lifecycle Phase**: INCEPTION
-- **Current Stage**: CONSTRUCTION - U1 Shared Platform Code Generation Complete
-- **Next Stage**: U2 Intake (Functional Design)
-- **Status**: Awaiting U1 code approval
+- **Current Stage**: CONSTRUCTION - U3 Adjudication Code Generation Complete
+- **Next Stage**: U4 Compliance (Functional Design)
+- **Status**: Awaiting U3 code approval
+- **Deployable slice note**: End-to-end testable after U4 + U5 real handlers. U0 infra + U1 lib + U2 intake + U3 adjudication built and synth-verified.
 
 ## Units Summary
 - U0 Infrastructure (CDK), U1 Shared Platform, U2 Intake, U3 Adjudication, U4 Compliance, U5 HITL/Review+API+Orchestration, U6 Feedback, U7 Web UI

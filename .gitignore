@@ -22,3 +22,6 @@ tmp/
 # AWS CDK
 cdk.out/
 .cdk.staging/
+
+# Vendored shared lib copies (produced by scripts/build_lambdas.sh)
+services/*/clairo_shared/

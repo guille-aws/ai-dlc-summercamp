@@ -267,3 +267,173 @@
 **Approval Prompt Presented**: "Code Generation Complete U1 — Request Changes / Continue to Next Stage (U2 Intake)"
 
 ---
+
+## Construction U1 Approved; U2 Intake Functional Design Plan
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: "U1 Shared Platform code approved. Started U2 Intake Functional Design. Created U2 functional-design-plan.md with 5 questions (input type detection, LLM extraction prompt strategy, multiple docs handling, low-quality input handling, evidence capture for highlighting). Awaiting answers."
+**Context**: CONSTRUCTION - U2 Intake Functional Design - Awaiting answers
+
+---
+
+## Construction U2 Intake - Functional Design Generated
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "answered" — Q1:A (content-type routing), Q2:A (single-shot structured LLM extraction), Q3:A (merge multiple docs), Q4:A (Rejected on unreadable), Q5:A (capture page+bbox evidence)
+**AI Response**: "Answers clear. Generated U2 domain-entities.md (ExtractedBlock/Text, IntakeInput/Result), business-logic-model.md (OCR Adapter, Email/Text Parser, LLM Extractor, Claim Normalizer + orchestration flow), business-rules.md (IR-1..IR-12: routing, extraction, validation/status, auditing). Awaiting approval."
+**Context**: CONSTRUCTION - U2 Intake Functional Design - Awaiting approval
+
+**Approval Prompt Presented**: "Functional Design Complete U2 — Request Changes / Continue to Next Stage (NFR Requirements)"
+
+---
+
+## Construction U2 - FD Approved; NFR Requirements Plan
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: "U2 Intake Functional Design approved. Started U2 NFR Requirements. Created nfr-requirements-plan.md with 4 focused questions (processing model, Textract mode, Lambda sizing, unit testing). Awaiting answers."
+**Context**: CONSTRUCTION - U2 NFR Requirements - Awaiting answers
+
+---
+
+## Construction U2 - NFR Requirements Generated
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "answered" — Q1:A (async), Q2:A (sync Textract APIs), Q3:B (1024MB/5min), Q4:B (no unit tests)
+**AI Response**: "Answers clear. Generated U2 nfr-requirements.md (NFR-U2-1..10) and tech-stack-decisions.md. Flagged reconciliation: U2 needs 1024MB/5min vs U0 default 512MB/2min for intake Lambda — to be updated in U2 infra/code. Awaiting approval."
+**Context**: CONSTRUCTION - U2 NFR Requirements - Awaiting approval
+
+**Approval Prompt Presented**: "NFR Requirements Complete U2 — Request Changes / Continue to Next Stage (NFR Design)"
+
+---
+
+## Construction U2 - NFR Req Approved; NFR Design Generated
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: "U2 NFR Requirements approved. NFR Design: patterns determined by FD+NFR reqs, no open questions. Generated nfr-design-patterns.md (async processing, adapter pattern for extractors, structured-output prompt, result tuples, boto3 retries, idempotency on claim_id, sizing) and logical-components.md (module map, infra interaction, non-goals). Awaiting approval."
+**Context**: CONSTRUCTION - U2 NFR Design - Awaiting approval
+
+**Approval Prompt Presented**: "NFR Design Complete U2 — Request Changes / Continue to Next Stage (Infrastructure Design)"
+
+---
+
+## Construction U2 - NFR Design Approved; Infrastructure Design Generated
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "okay, let's wait to have something deployable" + "Continue to Next Stage - Approve NFR design and proceed to Infrastructure Design (U2)"
+**AI Response**: "Noted user wants to defer deploy/test until a deployable slice exists (advised: after U2-U5 real handlers). Approved U2 NFR Design. Generated U2 infrastructure-design.md (no new resources; intake Lambda sizing 1024/5min + real handler asset; component→infra mapping; changes to apply in agents_stack.py) and deployment-architecture.md (packaging, deploy, first-testable-slice note). Awaiting approval."
+**Context**: CONSTRUCTION - U2 Infrastructure Design - Awaiting approval
+
+**Approval Prompt Presented**: "Infrastructure Design Complete U2 — Request Changes / Continue to Next Stage (Code Generation)"
+
+---
+
+## Construction U2 - Infra Design Approved; Code Gen Plan
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: "U2 Infrastructure Design approved. Created U2 code-generation-plan.md (Part 1) with 9 steps (scaffolding, text parser, OCR adapter, LLM extractor, normalizer, handler, CDK sizing update, verify, docs). Awaiting plan approval."
+**Context**: CONSTRUCTION - U2 Code Generation Part 1 - Awaiting plan approval
+
+**Approval Prompt Presented**: "U2 code generation plan complete (9 steps). Approve to begin generation?"
+
+---
+
+## Construction U2 - Code Generation Complete
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "approve"
+**AI Response**: "Generated all 9 plan steps: services/intake (extraction, text_parser, ocr_adapter, llm_extractor, normalizer, handler) + updated agents_stack.py (intake 1024MB/5min, real asset via _make_service_function) + scripts/build_lambdas.sh (vendors clairo_shared). Verified: ran build script, offline logic check (success + rejection paths) passed, cdk synth passed with intake MemorySize=1024/Timeout=300 and asset bundling handler + clairo_shared. Cleaned artifacts. Stories US-01/02/03 implemented. Awaiting approval. Note: end-to-end deploy/test meaningful after U3-U5 handlers."
+**Context**: CONSTRUCTION - U2 Code Generation - Awaiting approval
+
+**Approval Prompt Presented**: "Code Generation Complete U2 — Request Changes / Continue to Next Stage (U3 Adjudication)"
+
+---
+
+## Construction U2 Approved; U3 Adjudication Functional Design Plan
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: "U2 Intake code approved. Started U3 Adjudication Functional Design. Created U3 functional-design-plan.md with 5 questions (retrieval->decision flow, confidence source, retrieval depth, weak-retrieval handling, corrective-examples handling). Awaiting answers."
+**Context**: CONSTRUCTION - U3 Adjudication Functional Design - Awaiting answers
+
+---
+
+## Construction U3 Adjudication - Functional Design Generated
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "answered" — Q1:A (single-shot RAG), Q2:A (LLM self-assessed confidence), Q3:A (top-5), Q4:A (low-confidence on weak retrieval), Q5:A (no special handling of corrective examples)
+**AI Response**: "Answers clear. Generated U3 domain-entities.md (RetrievedPassage, RetrievalResult, AdjudicationOutput), business-logic-model.md (KB Retriever read-only + Decision Reasoner single-shot RAG + orchestration), business-rules.md (AR-1..AR-12). Awaiting approval."
+**Context**: CONSTRUCTION - U3 Adjudication Functional Design - Awaiting approval
+
+**Approval Prompt Presented**: "Functional Design Complete U3 — Request Changes / Continue to Next Stage (NFR Requirements)"
+
+---
+
+## Construction U3 - FD Approved; NFR Requirements Plan
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: "U3 Adjudication Functional Design approved. Started U3 NFR Requirements. Created nfr-requirements-plan.md with 4 questions (Lambda sizing, KB retrieval API, weak-match threshold, unit testing). Awaiting answers."
+**Context**: CONSTRUCTION - U3 NFR Requirements - Awaiting answers
+
+---
+
+## Construction U3 - NFR Requirements Generated
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "answered" — Q1:A (1024/5min), Q2:B (RetrieveAndGenerate managed RAG), Q3:B (hardcoded weak threshold), Q4:A (no unit tests)
+**AI Response**: "Answers clear. Generated U3 nfr-requirements.md (NFR-U3-1..10) and tech-stack-decisions.md. Noted: RetrieveAndGenerate managed RAG; structured output via prompt template + defensive parse; sizing reconciliation 1024/5min. Awaiting approval."
+**Context**: CONSTRUCTION - U3 NFR Requirements - Awaiting approval
+
+**Approval Prompt Presented**: "NFR Requirements Complete U3 — Request Changes / Continue to Next Stage (NFR Design)"
+
+---
+
+## Construction U3 - NFR Req Approved; NFR Design Generated
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: "U3 NFR Requirements approved. NFR Design: no open questions. Generated nfr-design-patterns.md (managed RAG, structured-output+defensive parse, confidence clamping, weak-retrieval handling, result tuples/retries, sizing) and logical-components.md (module map, infra interaction, non-goals). Awaiting approval."
+**Context**: CONSTRUCTION - U3 NFR Design - Awaiting approval
+
+**Approval Prompt Presented**: "NFR Design Complete U3 — Request Changes / Continue to Next Stage (Infrastructure Design)"
+
+---
+
+## Construction U3 - NFR Design Approved; Infrastructure Design Generated
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: "U3 NFR Design approved. Infrastructure Design: no new resources; adjudication Lambda sizing 1024/5min + real asset + KB_ID env + RetrieveAndGenerate IAM. Generated infrastructure-design.md and deployment-architecture.md (KB prerequisite noted). Awaiting approval."
+**Context**: CONSTRUCTION - U3 Infrastructure Design - Awaiting approval
+
+**Approval Prompt Presented**: "Infrastructure Design Complete U3 — Request Changes / Continue to Next Stage (Code Generation)"
+
+---
+
+## Construction U3 - Infra Design Approved; Code Gen Plan
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: "U3 Infrastructure Design approved. Created U3 code-generation-plan.md (Part 1) with 8 steps (scaffolding, types, KB client RetrieveAndGenerate, reasoner, handler, CDK update, verify, docs). Awaiting plan approval."
+**Context**: CONSTRUCTION - U3 Code Generation Part 1 - Awaiting plan approval
+
+**Approval Prompt Presented**: "U3 code generation plan complete (8 steps). Approve to begin generation?"
+
+---
+
+## Construction U3 - Code Generation Complete
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "approve"
+**AI Response**: "Generated all 8 plan steps: services/adjudication (types, kb_client RetrieveAndGenerate, reasoner, handler) + updated agents_stack.py (adjudication real asset 1024/5min, RetrieveAndGenerate IAM, KB_ID env) + extended build_lambdas.sh. Verified: build script, offline logic check (approve/weak/unusable paths) passed, cdk synth passed (RetrieveAndGenerate present, 2 Lambdas at 1024MB, adjudication asset bundles clairo_shared). Cleaned artifacts. US-04 implemented. Awaiting approval."
+**Context**: CONSTRUCTION - U3 Code Generation - Awaiting approval
+
+**Approval Prompt Presented**: "Code Generation Complete U3 — Request Changes / Continue to Next Stage (U4 Compliance)"
+
+---
+
+## Construction U3 Approved; U4 Compliance Functional Design Plan
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: "U3 Adjudication code approved. Started U4 Compliance Functional Design. Created U4 functional-design-plan.md with 5 questions (GDPR rule representation, validation approach, explanation format, non-compliance handling, compliance effect on outcome). Awaiting answers."
+**Context**: CONSTRUCTION - U4 Compliance Functional Design - Awaiting answers
+
+---
+
+## Construction U4 Compliance - Functional Design Generated
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "answered" — Q1:B (NL policy doc), Q2:B (pure LLM eval), Q3:C (both JSON+Markdown), Q4:B (record flags, no forced review), Q5:A (annotate only)
+**AI Response**: "Answers clear. Generated U4 domain-entities.md (GdprRulesDoc, ComplianceEvaluation, ExplanationArtifacts), business-logic-model.md (GDPR Rule Validator LLM + Explanation Generator + orchestration), business-rules.md (CR-1..CR-12). Documented trade-off CR-6: high-confidence + GDPR flag can auto-decide without review (accepted MVP trade-off, flag visible in findings/audit). Awaiting approval."
+**Context**: CONSTRUCTION - U4 Compliance Functional Design - Awaiting approval
+
+**Approval Prompt Presented**: "Functional Design Complete U4 — Request Changes / Continue to Next Stage (NFR Requirements)"
+
+---
