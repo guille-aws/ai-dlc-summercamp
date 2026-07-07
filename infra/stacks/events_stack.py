@@ -23,13 +23,14 @@ class EventsStack(Stack):
         construct_id: str,
         config: ClairoConfig,
         documents_bucket: s3.Bucket,
-        api_fn: lambda_.Function,
+        intake_fn: lambda_.Function,
         feedback_fn: lambda_.Function,
         **kwargs,
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        # S3 object-created in documents bucket triggers the orchestrator (US-02).
+        # S3 object-created in documents bucket triggers Intake directly (US-02).
+        # The intake handler parses the S3/EventBridge event shape.
         self.upload_rule = events.Rule(
             self,
             "ClaimUploadRule",
@@ -40,7 +41,7 @@ class EventsStack(Stack):
                 detail={"bucket": {"name": [documents_bucket.bucket_name]}},
             ),
         )
-        self.upload_rule.add_target(targets.LambdaFunction(api_fn))
+        self.upload_rule.add_target(targets.LambdaFunction(intake_fn))
 
         # Override event triggers the Feedback lambda (US-08). Emitted by the
         # orchestrator/review handler on the custom app event bus source.

@@ -72,6 +72,22 @@ class ClaimRepository:
             return err(StorageError(f"Failed to update result: {exc}"))
         return ok(attr)
 
+    def get_result(self, claim_id: str, stage: str) -> Result:
+        """Read a per-stage result attribute (e.g., 'adjudication', 'compliance').
+
+        Returns (result_dict_or_None, None) or (None, StorageError).
+        """
+        attr = f"{stage}_result"
+        try:
+            response = self._table.get_item(
+                Key={"claim_id": claim_id}, ProjectionExpression="#a",
+                ExpressionAttributeNames={"#a": attr},
+            )
+        except Exception as exc:
+            return err(StorageError(f"Failed to get result: {exc}"))
+        item = response.get("Item") or {}
+        return ok(item.get(attr))
+
     def list_by_status(self, status: ClaimStatus, limit: int = 50) -> Result:
         """List claims in a given status via the status GSI (review queue support)."""
         try:

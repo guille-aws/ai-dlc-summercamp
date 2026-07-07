@@ -59,6 +59,7 @@ class AgentsStack(Stack):
         self._claims_table = claims_table
         self._audit_table = audit_table
         self._documents_bucket = documents_bucket
+        self._kb_source_bucket_name = kb_source_bucket.bucket_name
 
         # U2 Intake: real handler asset, sized 1024 MB / 5 min (NFR-U2-5).
         self.intake_fn = self._make_service_function(
@@ -78,9 +79,24 @@ class AgentsStack(Stack):
             memory_size=1024,
             timeout_minutes=5,
         )
-        # U4/U6 still use inline placeholders until their code is generated.
-        self.compliance_fn = self._make_function("compliance", "Compliance")
-        self.feedback_fn = self._make_function("feedback", "Feedback")
+        # U4 Compliance: real handler asset, sized 1024 MB / 5 min (NFR-U4-5).
+        self.compliance_fn = self._make_service_function(
+            name="compliance",
+            label="Compliance",
+            service_dir="compliance",
+            handler="handler.handler",
+            memory_size=1024,
+            timeout_minutes=5,
+        )
+        # U6 Feedback: real handler asset (thin unit; default 512/2min is fine).
+        self.feedback_fn = self._make_service_function(
+            name="feedback",
+            label="Feedback",
+            service_dir="feedback",
+            handler="handler.handler",
+            memory_size=512,
+            timeout_minutes=2,
+        )
 
         # Common data access grants.
         for fn in (self.intake_fn, self.adjudication_fn, self.compliance_fn):
@@ -90,7 +106,16 @@ class AgentsStack(Stack):
         documents_bucket.grant_read_write(self.intake_fn)
         documents_bucket.grant_read_write(self.compliance_fn)
         kb_source_bucket.grant_read(self.adjudication_fn)
+        kb_source_bucket.grant_read(self.compliance_fn)  # GDPR rules doc location
         kb_source_bucket.grant_read_write(self.feedback_fn)
+
+        # Compliance reads the gdpr_rules_ref SSM parameter (U4, NFR-U4-3).
+        self.compliance_fn.add_to_role_policy(
+            iam.PolicyStatement(
+                actions=["ssm:GetParameter"],
+                resources=["*"],
+            )
+        )
 
         # Append-only audit: PutItem only for every agent role.
         self._grant_audit_append(
@@ -113,23 +138,37 @@ class AgentsStack(Stack):
             )
         )
 
+        # Bedrock Knowledge Base ARN (KB actions target the knowledge-base resource,
+        # not the underlying OpenSearch collection).
+        kb_id = os.environ.get("CLAIRO_KB_ID", "FLO9WDWX8Q")
+        kb_arn = f"arn:aws:bedrock:{self.region}:{self.account}:knowledge-base/{kb_id}"
+
         # KB read (U3) and write (U6) split (Q4:A).
         self.adjudication_fn.add_to_role_policy(
             iam.PolicyStatement(
                 actions=[
                     "bedrock:Retrieve",
                     "bedrock:RetrieveAndGenerate",
-                    "aoss:APIAccessAll",
                 ],
-                resources=[kb_collection_arn, f"{kb_collection_arn}/*"],
+                resources=[kb_arn],
+            )
+        )
+        # RetrieveAndGenerate also invokes the generation model (inference profile
+        # + underlying foundation models across the US regions).
+        self.adjudication_fn.add_to_role_policy(
+            iam.PolicyStatement(
+                actions=["bedrock:InvokeModel", "bedrock:GetInferenceProfile"],
+                resources=["*"],
             )
         )
         self.feedback_fn.add_to_role_policy(
             iam.PolicyStatement(
-                actions=["bedrock:StartIngestionJob", "aoss:APIAccessAll"],
-                resources=[kb_collection_arn, f"{kb_collection_arn}/*"],
+                actions=["bedrock:StartIngestionJob"],
+                resources=[kb_arn],
             )
         )
+        # Feedback reads the claim for the corrective example summary (U6).
+        claims_table.grant_read_data(self.feedback_fn)
 
     def _env(self) -> dict:
         return {
@@ -141,7 +180,10 @@ class AgentsStack(Stack):
             "GDPR_RULES_PARAM": self.config.ssm_gdpr_rules_param,
             # KB_ID is resolved after the Bedrock Knowledge Base is created/ingested
             # (operational step); empty default for synth. Adjudication (U3) reads it.
-            "KB_ID": os.environ.get("CLAIRO_KB_ID", ""),
+            "KB_ID": os.environ.get("CLAIRO_KB_ID", "FLO9WDWX8Q"),
+            # KB data source id + source bucket for feedback ingestion (U6).
+            "KB_DATA_SOURCE_ID": os.environ.get("CLAIRO_KB_DATA_SOURCE_ID", "7GV1LVSTGT"),
+            "KB_SOURCE_BUCKET": self._kb_source_bucket_name,
         }
 
     def _make_function(self, name: str, label: str) -> lambda_.Function:

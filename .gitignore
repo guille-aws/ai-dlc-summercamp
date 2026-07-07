@@ -25,3 +25,9 @@ cdk.out/
 
 # Vendored shared lib copies (produced by scripts/build_lambdas.sh)
 services/*/clairo_shared/
+
+# Next.js / web build
+web/node_modules/
+web/.next/
+web/out/
+web/next-env.d.ts

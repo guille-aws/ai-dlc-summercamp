@@ -437,3 +437,277 @@
 **Approval Prompt Presented**: "Functional Design Complete U4 — Request Changes / Continue to Next Stage (NFR Requirements)"
 
 ---
+
+## Construction U4 - FD Approved; NFR Requirements Plan
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: "U4 Compliance Functional Design approved. Started U4 NFR Requirements. Created nfr-requirements-plan.md with 3 questions (Lambda sizing, GDPR rules loading, unit testing). Awaiting answers."
+**Context**: CONSTRUCTION - U4 NFR Requirements - Awaiting answers
+
+---
+
+## Construction U4 - NFR Requirements Generated
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "answered" — Q1:A (1024/5min), Q2:A (SSM->S3 rules per invocation), Q3:A (no unit tests)
+**AI Response**: "Answers clear. Generated U4 nfr-requirements.md (NFR-U4-1..10) and tech-stack-decisions.md. Awaiting approval."
+**Context**: CONSTRUCTION - U4 NFR Requirements - Awaiting approval
+
+**Approval Prompt Presented**: "NFR Requirements Complete U4 — Request Changes / Continue to Next Stage (NFR Design)"
+
+---
+
+## Construction U4 - NFR Req Approved; NFR Design Generated
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: "U4 NFR Requirements approved. NFR Design: no open questions. Generated nfr-design-patterns.md (externalized rules SSM->S3, LLM eval + defensive parse, annotate-only, dual-artifact explanation, result tuples/retries, sizing) and logical-components.md (module map, infra interaction incl. SSM read grant to add, non-goals). Awaiting approval."
+**Context**: CONSTRUCTION - U4 NFR Design - Awaiting approval
+
+**Approval Prompt Presented**: "NFR Design Complete U4 — Request Changes / Continue to Next Stage (Infrastructure Design)"
+
+---
+
+## Construction U4 - NFR Design Approved; Infrastructure Design Generated
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: "U4 NFR Design approved. Infrastructure Design: no new resources; compliance Lambda sizing 1024/5min + real asset + SSM read grant + kb-source read. Generated infrastructure-design.md and deployment-architecture.md (GDPR seed doc prerequisite noted). Awaiting approval."
+**Context**: CONSTRUCTION - U4 Infrastructure Design - Awaiting approval
+
+**Approval Prompt Presented**: "Infrastructure Design Complete U4 — Request Changes / Continue to Next Stage (Code Generation)"
+
+---
+
+## Construction U4 - Infra Design Approved; Code Gen Plan
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: "U4 Infrastructure Design approved. Created U4 code-generation-plan.md (Part 1) with 7 steps (scaffolding, gdpr_validator, explanation, handler, CDK update, verify, docs). Awaiting plan approval."
+**Context**: CONSTRUCTION - U4 Code Generation Part 1 - Awaiting plan approval
+
+**Approval Prompt Presented**: "U4 code generation plan complete (7 steps). Approve to begin generation?"
+
+---
+
+## Construction U4 - Code Generation Complete
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "approve"
+**AI Response**: "Generated all 7 plan steps: services/compliance (gdpr_validator, explanation, handler) + updated agents_stack.py (compliance real asset 1024/5min, ssm:GetParameter, kb-source read) + extended build_lambdas.sh. Fixed decision-passing (orchestrator passes decision via event, safe fallback). Verified: build script, offline logic check (compliant/flagged-annotate-only/explanation) passed, cdk synth passed (3 Lambdas @1024MB, ssm grant, compliance asset bundles clairo_shared). Cleaned artifacts. US-05 implemented. Awaiting approval."
+**Context**: CONSTRUCTION - U4 Code Generation - Awaiting approval
+
+**Approval Prompt Presented**: "Code Generation Complete U4 — Request Changes / Continue to Next Stage (U5 HITL/API/Orchestration)"
+
+---
+
+## Construction U4 Approved; U5 Orchestration/API Functional Design Plan
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: "U4 Compliance code approved. Started U5 (HITL/API/Orchestration) Functional Design. Created U5 functional-design-plan.md with 6 questions (agent invocation, pause/resume mechanism, review task storage, auto finalization, override event emission, API authz). Awaiting answers."
+**Context**: CONSTRUCTION - U5 Functional Design - Awaiting answers
+
+---
+
+## Construction U5 - Functional Design Generated
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "answered" — Q1:B (async chaining via events), Q2:A (pause/resume via status + review record), Q3:A (review tasks = claims by status GSI), Q4:A (auto → Decided, adjudication outcome + compliance annotations), Q5:A (EventBridge ClaimOverridden → U6), Q6:A (Cognito authorizer + handler role checks)
+**AI Response**: "Answers clear. Chose DynamoDB Streams on Claims table to realize async chaining (Q1:B) without reworking U2-U4 handlers; documented explicitly. Generated U5 domain-entities.md (RoutingDecision, ReviewTask view, pipeline event mapping), business-logic-model.md (Orchestrator/Routing/ReviewTaskManager/EvidenceHighlighter/ClaimAPI + pause-resume), business-rules.md (OR-1..OR-18). Awaiting approval."
+**Context**: CONSTRUCTION - U5 Functional Design - Awaiting approval
+
+**Approval Prompt Presented**: "Functional Design Complete U5 — Request Changes / Continue to Next Stage (NFR Requirements)"
+
+---
+
+## Construction U5 - FD Approved; NFR Requirements Plan
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: "U5 Functional Design approved. Started U5 NFR Requirements. Created nfr-requirements-plan.md with 4 questions (Lambda handler split, API sizing, orchestrator sizing, unit testing). Awaiting answers."
+**Context**: CONSTRUCTION - U5 NFR Requirements - Awaiting answers
+
+---
+
+## Construction U5 - NFR Requirements Generated
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "answered" — Q1:A (two Lambdas: API + orchestrator), Q2:A (API 512/30s), Q3:A (orchestrator 512/1min), Q4:A (no unit tests)
+**AI Response**: "Answers clear. Generated U5 nfr-requirements.md (NFR-U5-1..9) and tech-stack-decisions.md (two Lambdas, DynamoDB Streams chaining, CDK changes: enable Claims stream + orchestrator Lambda). Awaiting approval."
+**Context**: CONSTRUCTION - U5 NFR Requirements - Awaiting approval
+
+**Approval Prompt Presented**: "NFR Requirements Complete U5 — Request Changes / Continue to Next Stage (NFR Design)"
+
+---
+
+## Construction U5 - NFR Req Approved; NFR Design Generated
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: "U5 NFR Requirements approved. NFR Design: no open questions. Generated nfr-design-patterns.md (event-driven chaining via streams, async non-blocking API, durable pause/resume, role authz, result tuples/retries, sizing) and logical-components.md (module map, infra interaction incl. new Claims stream + orchestrator Lambda, non-goals). Awaiting approval."
+**Context**: CONSTRUCTION - U5 NFR Design - Awaiting approval
+
+**Approval Prompt Presented**: "NFR Design Complete U5 — Request Changes / Continue to Next Stage (Infrastructure Design)"
+
+---
+
+## Construction U5 - NFR Design Approved; Infrastructure Design Generated
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: "U5 NFR Design approved. Infrastructure Design: new infra = Claims DynamoDB stream + orchestrator Lambda (stream consumer). Generated infrastructure-design.md (CDK changes: enable stream, add orchestrator Lambda, wire API handler asset; IAM) and deployment-architecture.md (end-to-end diagram + first deployable slice note). Awaiting approval."
+**Context**: CONSTRUCTION - U5 Infrastructure Design - Awaiting approval
+
+**Approval Prompt Presented**: "Infrastructure Design Complete U5 — Request Changes / Continue to Next Stage (Code Generation)"
+
+---
+
+## Construction U5 - Infra Design Approved; Code Gen Plan
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: "U5 Infrastructure Design approved. Created U5 code-generation-plan.md (Part 1) with 8 steps (scaffolding, routing, review, orchestrator, api_handler, CDK update incl. Claims stream + orchestrator Lambda, verify, docs). Awaiting plan approval."
+**Context**: CONSTRUCTION - U5 Code Generation Part 1 - Awaiting plan approval
+
+**Approval Prompt Presented**: "U5 code generation plan complete (8 steps). Approve to begin generation?"
+
+---
+
+## Construction U5 - Code Generation Complete
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "approve"
+**AI Response**: "Generated all 8 plan steps: services/orchestration_api (routing, review, orchestrator, api_handler) + updated data_stack.py (Claims stream), api_stack.py (API handler real asset 512/30s + orchestrator Lambda 512/1min with DynamoDB stream event source + IAM), added get_result() to shared claim_repository, extended build_lambdas.sh. Fixed broken import in review.py; fixed orchestrator decision-loading to use get_result. Verified: build script, offline logic checks (routing/review-override/API authz) passed, cdk synth passed (9 stacks, Claims stream, orchestrator event-source mapping, asset bundles clairo_shared). Cleaned artifacts. US-01/06/07/09/10/11 implemented. End-to-end pipeline now wired. Awaiting approval."
+**Context**: CONSTRUCTION - U5 Code Generation - Awaiting approval
+
+**Approval Prompt Presented**: "Code Generation Complete U5 — Request Changes / Continue to Next Stage (U6 Feedback)"
+
+---
+
+## Construction U5 Approved; U6 Feedback Functional Design Plan
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: "U5 code approved (end-to-end pipeline wired). Started U6 Feedback Functional Design. Created U6 functional-design-plan.md with 4 questions (corrective example content, KB write mechanism, trigger source, idempotency). Awaiting answers. Note: U6 NFR Req/Design skipped per unit plan (thin event-triggered unit)."
+**Context**: CONSTRUCTION - U6 Feedback Functional Design - Awaiting answers
+
+---
+
+## Construction U6 Feedback - Functional Design Generated
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "answered" — Q1:A (claim summary + decision + rationale), Q2:A (S3 write + StartIngestionJob), Q3:A (EventBridge ClaimOverridden), Q4:A (deterministic S3 key)
+**AI Response**: "Answers clear. Generated U6 domain-entities.md (CorrectiveExample + event shape), business-logic-model.md (Feedback Ingestor + flow), business-rules.md (FR6-1..FR6-8). Awaiting approval."
+**Context**: CONSTRUCTION - U6 Feedback Functional Design - Awaiting approval
+
+**Approval Prompt Presented**: "Functional Design Complete U6 — Request Changes / Continue to Next Stage (Infrastructure Design)"
+
+---
+
+## Construction U6 - FD Approved; Infrastructure Design Generated
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: "U6 Feedback Functional Design approved. Infrastructure Design: no new resources; feedback Lambda real asset + StartIngestionJob IAM + claims read + KB_ID/KB_DATA_SOURCE_ID env; EventBridge trigger already wired in U0. Generated infrastructure-design.md and deployment-architecture.md. Awaiting approval."
+**Context**: CONSTRUCTION - U6 Infrastructure Design - Awaiting approval
+
+**Approval Prompt Presented**: "Infrastructure Design Complete U6 — Request Changes / Continue to Next Stage (Code Generation)"
+
+---
+
+## Construction U6 - Infra Design Approved; Code Gen Plan
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: "U6 Infrastructure Design approved. Created U6 code-generation-plan.md (Part 1) with 5 steps (scaffolding, feedback ingestor handler, CDK update, verify, docs). Awaiting plan approval."
+**Context**: CONSTRUCTION - U6 Code Generation Part 1 - Awaiting plan approval
+
+**Approval Prompt Presented**: "U6 code generation plan complete (5 steps). Approve to begin generation?"
+
+---
+
+## Construction U6 - Code Generation Complete
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "approve"
+**AI Response**: "Generated all 5 plan steps: services/feedback (handler) + updated agents_stack.py (feedback real asset, StartIngestionJob + claims read, KB_ID/KB_DATA_SOURCE_ID/KB_SOURCE_BUCKET env) + extended build_lambdas.sh. Verified: build script, offline logic check (S3 corrective write + ingestion job + audit + event parsing) passed, cdk synth passed (StartIngestionJob present, feedback asset bundles clairo_shared). Cleaned artifacts. US-08 implemented. All backend units U0-U6 complete. Awaiting approval."
+**Context**: CONSTRUCTION - U6 Code Generation - Awaiting approval
+
+**Approval Prompt Presented**: "Code Generation Complete U6 — Request Changes / Continue to Next Stage (U7 Web UI)"
+
+---
+
+## Construction U6 Approved; U7 Web UI Functional Design Plan
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: "U6 Feedback code approved (all backend units complete). Started U7 Web UI Functional Design. Created U7 functional-design-plan.md with 5 questions (framework, auth integration, screens scope, evidence display, API client). Awaiting answers."
+**Context**: CONSTRUCTION - U7 Web UI Functional Design - Awaiting answers
+
+---
+
+## Construction U7 Web UI - Functional Design Generated
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "answered" — Q1:B (Next.js), Q2:A (Amplify Auth), Q3:A (Login/Queue/Detail/Status), Q4:A (evidence snippet list), Q5:A (typed fetch client + JWT)
+**AI Response**: "Answers clear. Generated U7 frontend-components.md (screens, component hierarchy, props/state, data-testid, API integration), business-logic-model.md (auth, apiClient, flows, role gating), business-rules.md (UI-1..UI-11). Awaiting approval."
+**Context**: CONSTRUCTION - U7 Web UI Functional Design - Awaiting approval
+
+**Approval Prompt Presented**: "Functional Design Complete U7 — Request Changes / Continue to Next Stage (NFR Requirements)"
+
+---
+
+## Construction U7 - FD Approved; NFR Requirements Plan
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: "U7 Web UI Functional Design approved. Started U7 NFR Requirements. Created nfr-requirements-plan.md with 4 questions (rendering mode, styling, accessibility baseline, frontend testing). Awaiting answers."
+**Context**: CONSTRUCTION - U7 NFR Requirements - Awaiting answers
+
+---
+
+## Construction U7 - NFR Requirements Generated
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "answered" — Q1:A (static/SPA), Q2:A (component library → MUI), Q3:A (sensible-defaults a11y), Q4:A (no automated tests)
+**AI Response**: "Answers clear. Generated U7 nfr-requirements.md (NFR-U7-1..8; MUI chosen concretely; a11y not formally WCAG-audited) and tech-stack-decisions.md (Next.js static export, Amplify Auth, MUI, typed fetch, web/ module layout). Awaiting approval."
+**Context**: CONSTRUCTION - U7 NFR Requirements - Awaiting approval
+
+**Approval Prompt Presented**: "NFR Requirements Complete U7 — Request Changes / Continue to Next Stage (Infrastructure Design)"
+
+---
+
+## Construction U7 - NFR Req Approved; Infrastructure Design Generated
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: "U7 NFR Requirements approved. Infrastructure Design: no new resources; hosted on Amplify app from U0 web_stack; static export + env vars. Generated infrastructure-design.md and deployment-architecture.md. Awaiting approval."
+**Context**: CONSTRUCTION - U7 Infrastructure Design - Awaiting approval
+
+**Approval Prompt Presented**: "Infrastructure Design Complete U7 — Request Changes / Continue to Next Stage (Code Generation)"
+
+---
+
+## Construction U7 - Infra Design Approved; Code Gen Plan
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: "U7 Infrastructure Design approved. Created U7 code-generation-plan.md (Part 1) with 7 steps (scaffolding, types+API client, app shell+auth guard, components, pages, verify build, docs). Awaiting plan approval."
+**Context**: CONSTRUCTION - U7 Code Generation Part 1 - Awaiting plan approval
+
+**Approval Prompt Presented**: "U7 code generation plan complete (7 steps). Approve to begin generation?"
+
+---
+
+## Construction U7 - Code Generation Complete
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "approve"
+**AI Response**: "Generated all 7 plan steps: web/ Next.js app (package.json, next.config export, tsconfig, .env.example) + src (types, lib/amplify, lib/apiClient, components: AppLayout/RecommendationCard/ReasoningList/EvidenceList/DecisionForm/ClaimStatusCard, pages: index/review/status/_app). Verified: npm install + npm run build succeeded (typecheck + static export of all routes). Cleaned build artifacts, gitignored web build dirs. FLAGGED: next@14.2.5 security advisory — recommend patched version before real deploy. US-06/07/09/12 (UI) implemented. ALL 8 UNITS COMPLETE. Awaiting approval."
+**Context**: CONSTRUCTION - U7 Code Generation - Awaiting approval
+
+**Approval Prompt Presented**: "Code Generation Complete U7 — Request Changes / Continue to Build and Test"
+
+---
+
+## Build and Test Stage
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "Continue to Next Stage"
+**Build Status**: Success (full CDK synth of 9 stacks after vendoring; web build/typecheck + static export verified)
+**Test Status**: Pass (logic/build level); integration + performance documented but not executed (require deployed env + seed data)
+**Files Generated**:
+- build-instructions.md
+- unit-test-instructions.md
+- integration-test-instructions.md
+- performance-test-instructions.md
+- build-and-test-summary.md
+**AI Response**: "Ran full build_lambdas + cdk synth (9 stacks OK). Generated all 5 build-and-test instruction files reflecting true state (no automated unit suites per opt-outs; logic/build verifications passed; integration/perf documented). Flagged follow-ups: Next.js security bump, add real test suites, enable security/resiliency before real PHI, WCAG audit. Awaiting approval."
+**Context**: CONSTRUCTION - Build and Test - Awaiting approval
+
+**Approval Prompt Presented**: "Build and Test Complete — Request Changes / Approve & Continue to Operations"
+
+---
+
+## Build and Test - Approved; Workflow Complete
+**Timestamp**: 2026-07-06T00:00:00Z
+**User Input**: "Approve & Continue"
+**AI Response**: "Build and Test approved. Operations phase is a placeholder — AI-DLC workflow currently ends after Build and Test. CLAIRO MVP construction complete: 8 units (U0-U7) designed, generated, and verified (synth + logic + web build). Marked workflow complete in aidlc-state.md."
+**Context**: OPERATIONS - Placeholder - WORKFLOW COMPLETE
+
+---

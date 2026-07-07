@@ -15,7 +15,8 @@ DEFAULT_REGION = "us-east-1"
 DEFAULT_CONFIDENCE_THRESHOLD = "0.80"
 
 # Bedrock model used by Intake extraction and Adjudication reasoning.
-BEDROCK_MODEL_ID = "anthropic.claude-3-5-sonnet-20240620-v1:0"
+# US cross-region inference profile for Claude Sonnet 4.5 (on-demand invokable).
+BEDROCK_MODEL_ID = "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
 
 
 @dataclass(frozen=True)

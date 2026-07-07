@@ -1,0 +1,8 @@
+Health Claim Submission (SYNTHETIC)
+
+Claimant: Jane Doe
+Provider: Acme Clinic
+Policy: POL-1
+Line items:
+- Procedure 99213 (office visit), diagnosis Z00, amount 120.00 EUR, service date 2026-01-10
+Total: 120.00 EUR

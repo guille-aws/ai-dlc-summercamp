@@ -34,6 +34,8 @@ class DataStack(Stack):
             billing_mode=dynamodb.BillingMode.PAY_PER_REQUEST,
             encryption=dynamodb.TableEncryption.AWS_MANAGED,
             point_in_time_recovery=True,
+            # Stream drives the U5 orchestrator pipeline chaining (async, Q1:B).
+            stream=dynamodb.StreamViewType.NEW_AND_OLD_IMAGES,
             # Dev-only: destroy on stack deletion. Do not use for real data.
             removal_policy=RemovalPolicy.DESTROY,
         )

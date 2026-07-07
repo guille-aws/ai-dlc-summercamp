@@ -11,7 +11,7 @@ from email import message_from_bytes
 from clairo_shared.models import DocumentRef
 from clairo_shared.result import Result, err, ok
 
-from .extraction import ExtractedBlock, ExtractedText
+from extraction import ExtractedBlock, ExtractedText
 
 
 class TextParser:

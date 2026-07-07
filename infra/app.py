@@ -71,7 +71,7 @@ def main() -> None:
         stack_name("Events"),
         config=config,
         documents_bucket=data.documents_bucket,
-        api_fn=api.api_fn,
+        intake_fn=agents.intake_fn,
         feedback_fn=agents.feedback_fn,
         env=env,
     )

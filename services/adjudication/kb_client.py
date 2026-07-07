@@ -1,6 +1,7 @@
-"""KB Client: managed RAG via Bedrock RetrieveAndGenerate (Q2:B).
+"""KB Client: retrieves policy passages from the Bedrock Knowledge Base via the
+`Retrieve` API (top-K), then the reasoner invokes the model separately. This
+avoids RetrieveAndGenerate's managed-KB limitations.
 
-Retrieves top-5 policy passages and generates a structured response in one call.
 The bedrock-agent-runtime client is injectable for offline verification.
 """
 
@@ -13,63 +14,45 @@ import boto3
 from clairo_shared.errors import StorageError
 from clairo_shared.result import Result, err, ok
 
-from .types import RetrievalResult, RetrievedPassage, WEAK_MATCH_THRESHOLD
+from types_ import RetrievalResult, RetrievedPassage, WEAK_MATCH_THRESHOLD
 
 _TOP_K = 5
 
 
 class KbClient:
-    def __init__(self, agent_runtime_client=None, kb_id: str = None, model_arn: str = None):
+    def __init__(self, agent_runtime_client=None, kb_id: str = None):
         self._client = agent_runtime_client or boto3.client(
             "bedrock-agent-runtime",
             region_name=os.environ.get("AWS_REGION", "us-east-1"),
         )
         self._kb_id = kb_id or os.environ.get("KB_ID", "")
-        self._model_arn = model_arn or os.environ.get(
-            "BEDROCK_MODEL_ID", "anthropic.claude-3-5-sonnet-20240620-v1:0"
-        )
 
-    def retrieve_and_generate(self, query: str, prompt_instructions: str) -> Result:
-        """Run managed RAG. Returns (RetrievalResult, None) or (None, StorageError)."""
+    def retrieve(self, query: str) -> Result:
+        """Retrieve top-K policy passages. Returns (RetrievalResult, None) or error."""
         try:
-            response = self._client.retrieve_and_generate(
-                input={"text": f"{prompt_instructions}\n\nClaim:\n{query}"},
-                retrieveAndGenerateConfiguration={
-                    "type": "KNOWLEDGE_BASE",
-                    "knowledgeBaseConfiguration": {
-                        "knowledgeBaseId": self._kb_id,
-                        "modelArn": self._model_arn,
-                        "retrievalConfiguration": {
-                            "vectorSearchConfiguration": {"numberOfResults": _TOP_K}
-                        },
-                    },
-                },
+            # Managed knowledge bases do not accept vectorSearchConfiguration;
+            # omit retrievalConfiguration and let the KB use its managed search.
+            response = self._client.retrieve(
+                knowledgeBaseId=self._kb_id,
+                retrievalQuery={"text": query},
             )
         except Exception as exc:
-            return err(StorageError(f"RetrieveAndGenerate failed: {exc}"))
+            return err(StorageError(f"Retrieve failed: {exc}"))
 
-        generated = response.get("output", {}).get("text", "")
-        passages = self._extract_citations(response)
-        weak = self._is_weak(passages)
-        return ok(RetrievalResult(generated_text=generated, passages=passages, weak=weak))
-
-    @staticmethod
-    def _extract_citations(response: dict) -> list:
         passages = []
-        for citation in response.get("citations", []):
-            for ref in citation.get("retrievedReferences", []):
-                content = ref.get("content", {}).get("text", "")
-                location = ref.get("location", {})
-                source_id = (
-                    location.get("s3Location", {}).get("uri")
-                    or ref.get("metadata", {}).get("source", "")
-                    or "unknown"
-                )
-                score = ref.get("metadata", {}).get("score", 0.0)
-                passages.append(
-                    RetrievedPassage(source_id=source_id, excerpt=content, score=float(score or 0.0))
-                )
-        return passages
+        for item in response.get("retrievalResults", []):
+            content = item.get("content", {}).get("text", "")
+            location = item.get("location", {})
+            source_id = (
+                location.get("s3Location", {}).get("uri")
+                or "unknown"
+            )
+            score = item.get("score", 0.0)
+            passages.append(
+                RetrievedPassage(source_id=source_id, excerpt=content, score=float(score or 0.0))
+            )
+        weak = self._is_weak(passages)
+        return ok(RetrievalResult(generated_text="", passages=passages, weak=weak))
 
     @staticmethod
     def _is_weak(passages: list) -> bool:

@@ -18,11 +18,11 @@ from clairo_shared.repositories.claim_repository import ClaimRepository
 from clairo_shared.repositories.document_store import DocumentStore
 from clairo_shared.util import get_logger, log_event, new_claim_id
 
-from .extraction import IntakeInput, IntakeResult, is_ocr_type, is_text_type
-from .llm_extractor import LlmExtractor
-from .normalizer import Normalizer
-from .ocr_adapter import OcrAdapter
-from .text_parser import TextParser
+from extraction import IntakeInput, IntakeResult, is_ocr_type, is_text_type
+from llm_extractor import LlmExtractor
+from normalizer import Normalizer
+from ocr_adapter import OcrAdapter
+from text_parser import TextParser
 
 _logger = get_logger("clairo.intake")
 

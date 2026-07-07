@@ -12,8 +12,8 @@ from clairo_shared.models import ActorType, ClaimStatus
 from clairo_shared.repositories.claim_repository import ClaimRepository
 from clairo_shared.util import get_logger, log_event
 
-from .kb_client import KbClient
-from .reasoner import PROMPT_INSTRUCTIONS, build_query, to_decision
+from kb_client import KbClient
+from reasoner import Reasoner, build_query
 
 _logger = get_logger("clairo.adjudication")
 
@@ -24,10 +24,12 @@ class AdjudicationService:
         claim_repo: ClaimRepository = None,
         audit: AuditLogger = None,
         kb_client: KbClient = None,
+        reasoner: Reasoner = None,
     ):
         self.claim_repo = claim_repo or ClaimRepository()
         self.audit = audit or AuditLogger()
         self.kb = kb_client or KbClient()
+        self.reasoner = reasoner or Reasoner()
 
     def process(self, claim_id: str):
         """Adjudicate a claim. Returns (PreliminaryDecision, None) or (None, error)."""
@@ -35,10 +37,8 @@ class AdjudicationService:
         if error:
             return None, error
 
-        # Managed RAG.
-        retrieval, rerr = self.kb.retrieve_and_generate(
-            build_query(claim), PROMPT_INSTRUCTIONS
-        )
+        # Retrieve policy passages (KB) then reason (model).
+        retrieval, rerr = self.kb.retrieve(build_query(claim))
         if rerr:
             # Unrecoverable retrieval error -> Failed.
             self.claim_repo.update_status(claim_id, ClaimStatus.FAILED)
@@ -51,7 +51,7 @@ class AdjudicationService:
             )
             return None, rerr
 
-        decision = to_decision(retrieval)
+        decision = self.reasoner.decide(claim, retrieval)
 
         # Persist decision + advance status (AR-10).
         self.claim_repo.update_result(

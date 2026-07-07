@@ -37,18 +37,18 @@
 - [x] U1 Shared Platform: FD, NFR Req, NFR Design, Infra Design, Code Gen (COMPLETED - clairo_shared lib, imports+logic verified, awaiting approval)
 - [x] U2 Intake: FD, NFR Req, NFR Design, Infra Design, Code Gen (COMPLETED - services/intake, synth+logic verified, awaiting approval)
 - [x] U3 Adjudication: FD, NFR Req, NFR Design, Infra Design, Code Gen (COMPLETED - services/adjudication, synth+logic verified, awaiting approval)
-- [ ] U4 Compliance: FD (COMPLETED - awaiting approval), NFR Req, NFR Design, Infra Design, Code Gen
-- [ ] U5 HITL/API/Orchestration: FD, NFR Req, NFR Design, Infra Design, Code Gen
-- [ ] U6 Feedback: FD, Infra Design, Code Gen
-- [ ] U7 Web UI: FD, NFR Req, Infra Design, Code Gen
-- [ ] CONSTRUCTION - Build and Test (EXECUTE, after all units)
+- [x] U4 Compliance: FD, NFR Req, NFR Design, Infra Design, Code Gen (COMPLETED - services/compliance, synth+logic verified, awaiting approval)
+- [x] U5 HITL/API/Orchestration: FD, NFR Req, NFR Design, Infra Design, Code Gen (COMPLETED - services/orchestration_api, synth+logic verified, awaiting approval)
+- [x] U6 Feedback: FD, Infra Design, Code Gen (COMPLETED - services/feedback, synth+logic verified, awaiting approval)
+- [x] U7 Web UI: FD, NFR Req, Infra Design, Code Gen (COMPLETED - web/ Next.js, build verified, awaiting approval)
+- [x] CONSTRUCTION - Build and Test (COMPLETED - synth + web build verified; instruction files generated; integration/perf documented)
 
 ## Current Status
 - **Lifecycle Phase**: INCEPTION
-- **Current Stage**: CONSTRUCTION - U3 Adjudication Code Generation Complete
-- **Next Stage**: U4 Compliance (Functional Design)
-- **Status**: Awaiting U3 code approval
-- **Deployable slice note**: End-to-end testable after U4 + U5 real handlers. U0 infra + U1 lib + U2 intake + U3 adjudication built and synth-verified.
+- **Current Stage**: COMPLETE — Build and Test approved; Operations is a placeholder
+- **Next Stage**: Operations (placeholder — workflow ends here)
+- **Status**: AI-DLC workflow COMPLETE for CLAIRO MVP
+- **Deployable slice note**: Full system U0-U7 built + verified. Deployable to dev with synthetic data after KB/GDPR seed + Cognito config + Next.js bump.
 
 ## Units Summary
 - U0 Infrastructure (CDK), U1 Shared Platform, U2 Intake, U3 Adjudication, U4 Compliance, U5 HITL/Review+API+Orchestration, U6 Feedback, U7 Web UI

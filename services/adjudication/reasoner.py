@@ -1,10 +1,14 @@
-"""Reasoner: builds the RAG prompt, parses the generated structured output into a
-PreliminaryDecision, clamps confidence, and applies weak-basis handling.
+"""Reasoner: builds the RAG prompt from retrieved passages, invokes the Bedrock
+model, parses the structured output into a PreliminaryDecision, clamps
+confidence, and applies weak-basis handling.
 """
 
 from __future__ import annotations
 
 import json
+import os
+
+import boto3
 
 from clairo_shared.models import (
     CanonicalClaim,
@@ -13,9 +17,9 @@ from clairo_shared.models import (
     PreliminaryDecision,
 )
 
-from .types import RetrievalResult
+from types_ import RetrievalResult
 
-PROMPT_INSTRUCTIONS = (
+_SYSTEM_PROMPT = (
     "You are a health insurance claims adjudicator. Using ONLY the retrieved "
     "policy context, decide the claim and return ONLY a JSON object: "
     '{"outcome": "approve|deny|partial|needs_more_info", '
@@ -42,6 +46,40 @@ def build_query(claim: CanonicalClaim) -> str:
     return "\n".join(lines)
 
 
+class Reasoner:
+    def __init__(self, bedrock_client=None, model_id: str = None):
+        self._bedrock = bedrock_client or boto3.client(
+            "bedrock-runtime", region_name=os.environ.get("AWS_REGION", "us-east-1")
+        )
+        self._model_id = model_id or os.environ.get(
+            "BEDROCK_MODEL_ID", "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
+        )
+
+    def decide(self, claim: CanonicalClaim, retrieval: RetrievalResult) -> PreliminaryDecision:
+        """Invoke the model over claim + retrieved passages -> PreliminaryDecision."""
+        context = "\n\n".join(
+            f"[{p.source_id}] {p.excerpt}" for p in retrieval.passages
+        ) or "(no policy context retrieved)"
+        user_text = f"POLICY CONTEXT:\n{context}\n\nCLAIM:\n{build_query(claim)}"
+
+        body = {
+            "anthropic_version": "bedrock-2023-05-31",
+            "max_tokens": 1500,
+            "system": _SYSTEM_PROMPT,
+            "messages": [{"role": "user", "content": [{"type": "text", "text": user_text}]}],
+        }
+        try:
+            response = self._bedrock.invoke_model(
+                modelId=self._model_id, body=json.dumps(body)
+            )
+            payload = json.loads(response["body"].read())
+            text_out = payload["content"][0]["text"]
+        except Exception:
+            text_out = ""
+
+        return to_decision(text_out, retrieval)
+
+
 def _parse_json(text: str):
     text = (text or "").strip()
     if text.startswith("```"):
@@ -66,19 +104,19 @@ def _clamp(value) -> float:
     return max(0.0, min(1.0, v))
 
 
-def to_decision(retrieval: RetrievalResult) -> PreliminaryDecision:
-    """Map the RAG generated text into a PreliminaryDecision (AR-5..AR-9, AR-11)."""
-    parsed = _parse_json(retrieval.generated_text)
+def to_decision(generated_text: str, retrieval: RetrievalResult) -> PreliminaryDecision:
+    """Map model output into a PreliminaryDecision (AR-5..AR-9, AR-11)."""
+    parsed = _parse_json(generated_text)
 
     if parsed is None:
-        # Unusable output -> low-confidence needs_more_info (AR-11), routes to human.
         return PreliminaryDecision(
             outcome=DecisionOutcome.NEEDS_MORE_INFO,
             confidence=0.0,
             reasoning_chain=["Adjudicator output could not be parsed; routing to human review."],
-            citations=[PolicyCitation.from_dict(
-                {"source_id": p.source_id, "excerpt": p.excerpt, "score": p.score}
-            ) for p in retrieval.passages],
+            citations=[
+                PolicyCitation(source_id=p.source_id, excerpt=p.excerpt, score=p.score)
+                for p in retrieval.passages
+            ],
         )
 
     try:
@@ -87,8 +125,6 @@ def to_decision(retrieval: RetrievalResult) -> PreliminaryDecision:
         outcome = DecisionOutcome.NEEDS_MORE_INFO
 
     confidence = _clamp(parsed.get("confidence", 0.0))
-
-    # Weak retrieval basis -> cap confidence low so it routes to human (AR-9).
     if retrieval.weak:
         confidence = min(confidence, 0.3)
 

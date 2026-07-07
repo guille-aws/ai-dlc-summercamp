@@ -1,0 +1,2 @@
+boto3>=1.34.0
+# clairo_shared is bundled from ../../libs/clairo_shared at build time

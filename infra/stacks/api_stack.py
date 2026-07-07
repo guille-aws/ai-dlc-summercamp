@@ -11,21 +11,25 @@ Endpoints (FR-7, US-01/06/07/09/10/11):
   PUT    /config/threshold  update confidence threshold (supervisor)
 """
 
+import os
+
 from aws_cdk import Duration, Stack
 from aws_cdk import aws_apigateway as apigw
 from aws_cdk import aws_cognito as cognito
 from aws_cdk import aws_dynamodb as dynamodb
 from aws_cdk import aws_iam as iam
 from aws_cdk import aws_lambda as lambda_
+from aws_cdk import aws_lambda_event_sources as lambda_events
 from aws_cdk import aws_logs as logs
 from constructs import Construct
 
 from .config import ClairoConfig
 
-_PLACEHOLDER_CODE = (
-    "def handler(event, context):\n"
-    "    return {'statusCode': 200, 'body': 'placeholder - replaced by unit code'}\n"
-)
+_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+
+def _service_asset_path(service_dir: str) -> str:
+    return os.path.join(_REPO_ROOT, "services", service_dir)
 
 
 class ApiStack(Stack):
@@ -45,45 +49,82 @@ class ApiStack(Stack):
         super().__init__(scope, construct_id, **kwargs)
         self.config = config
 
-        # Orchestrator + API handler (U5). Coordinates the agent pipeline and
-        # serves the REST API + review backend.
+        _env = {
+            "CLAIMS_TABLE": claims_table.table_name,
+            "AUDIT_TABLE": audit_table.table_name,
+            "INTAKE_FN": intake_fn.function_name,
+            "ADJUDICATION_FN": adjudication_fn.function_name,
+            "COMPLIANCE_FN": compliance_fn.function_name,
+            "THRESHOLD_PARAM": config.ssm_threshold_param,
+        }
+
+        # U5 API handler (512 MB / 30 s). Serves the REST API + review backend.
         self.api_fn = lambda_.Function(
             self,
-            "ApiOrchestratorFn",
-            function_name=config.resource_name("api-orchestrator"),
+            "ApiHandlerFn",
+            function_name=config.resource_name("api-handler"),
             runtime=lambda_.Runtime.PYTHON_3_12,
-            handler="index.handler",
-            code=lambda_.Code.from_inline(_PLACEHOLDER_CODE),
-            timeout=Duration.minutes(5),
+            handler="api_handler.handler",
+            code=lambda_.Code.from_asset(_service_asset_path("orchestration_api")),
+            timeout=Duration.seconds(30),
             memory_size=512,
             log_retention=logs.RetentionDays.ONE_WEEK,
-            environment={
-                "CLAIMS_TABLE": claims_table.table_name,
-                "AUDIT_TABLE": audit_table.table_name,
-                "INTAKE_FN": intake_fn.function_name,
-                "ADJUDICATION_FN": adjudication_fn.function_name,
-                "COMPLIANCE_FN": compliance_fn.function_name,
-                "THRESHOLD_PARAM": config.ssm_threshold_param,
-            },
+            environment=_env,
         )
 
+        # U5 orchestrator (512 MB / 1 min): DynamoDB Streams consumer that chains
+        # the agent pipeline and runs routing.
+        self.orchestrator_fn = lambda_.Function(
+            self,
+            "OrchestratorFn",
+            function_name=config.resource_name("orchestrator"),
+            runtime=lambda_.Runtime.PYTHON_3_12,
+            handler="orchestrator.handler",
+            code=lambda_.Code.from_asset(_service_asset_path("orchestration_api")),
+            timeout=Duration.minutes(1),
+            memory_size=512,
+            log_retention=logs.RetentionDays.ONE_WEEK,
+            environment=_env,
+        )
+        self.orchestrator_fn.add_event_source(
+            lambda_events.DynamoEventSource(
+                claims_table,
+                starting_position=lambda_.StartingPosition.LATEST,
+                batch_size=5,
+                retry_attempts=2,
+            )
+        )
+
+        # API handler grants.
         claims_table.grant_read_write_data(self.api_fn)
         self.api_fn.add_to_role_policy(
             iam.PolicyStatement(
                 actions=["dynamodb:PutItem"], resources=[audit_table.table_arn]
             )
         )
-        # Read audit trail (US-11) — Query/GetItem allowed (read side).
         audit_table.grant_read_data(self.api_fn)
-        # Invoke the agent lambdas as part of orchestration.
-        for fn in (intake_fn, adjudication_fn, compliance_fn):
-            fn.grant_invoke(self.api_fn)
-        # Read/update threshold parameter (US-10).
+        intake_fn.grant_invoke(self.api_fn)
         self.api_fn.add_to_role_policy(
             iam.PolicyStatement(
-                actions=["ssm:GetParameter", "ssm:PutParameter"],
-                resources=["*"],
+                actions=["ssm:GetParameter", "ssm:PutParameter"], resources=["*"]
             )
+        )
+        # API handler emits ClaimOverridden events on override.
+        self.api_fn.add_to_role_policy(
+            iam.PolicyStatement(actions=["events:PutEvents"], resources=["*"])
+        )
+
+        # Orchestrator grants.
+        claims_table.grant_read_write_data(self.orchestrator_fn)
+        self.orchestrator_fn.add_to_role_policy(
+            iam.PolicyStatement(
+                actions=["dynamodb:PutItem"], resources=[audit_table.table_arn]
+            )
+        )
+        for fn in (intake_fn, adjudication_fn, compliance_fn):
+            fn.grant_invoke(self.orchestrator_fn)
+        self.orchestrator_fn.add_to_role_policy(
+            iam.PolicyStatement(actions=["ssm:GetParameter"], resources=["*"])
         )
 
         # Cognito authorizer for authenticated access.

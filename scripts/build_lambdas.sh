@@ -8,7 +8,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SHARED_SRC="$REPO_ROOT/libs/clairo_shared/clairo_shared"
 
-SERVICES=("intake" "adjudication")
+SERVICES=("intake" "adjudication" "compliance" "orchestration_api" "feedback")
 
 for svc in "${SERVICES[@]}"; do
   SVC_DIR="$REPO_ROOT/services/$svc"
