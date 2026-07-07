@@ -24,7 +24,7 @@ C) Amazon QLDB — purpose-built immutable ledger
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: A) DynamoDB table with append-only access pattern (writes only, no updates/deletes via IAM) — simplest, low cost
 
 ### Question 2: Async Intake & Eventing
 How should event-driven flows (S3 upload trigger, HITL pause, override feedback) be wired?
@@ -37,7 +37,7 @@ C) EventBridge for all events plus SQS for the review-task backlog
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: A) S3 Event Notifications + Amazon EventBridge for internal events (upload → orchestrator; override → feedback)
 
 ### Question 3: Web UI Hosting
 How should the TypeScript reviewer UI (U7) be hosted?
@@ -48,7 +48,7 @@ B) AWS Amplify Hosting
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: B) AWS Amplify Hosting
 
 ### Question 4: Environments
 How many deployment environments should the CDK app support for the MVP?
@@ -59,7 +59,7 @@ B) Two environments (`dev` and `prod`) parameterized in CDK
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: A) Single environment (e.g., `dev`)
 
 ### Question 5: Monitoring/Observability Baseline
 What observability should infra provision by default?
@@ -72,7 +72,7 @@ C) The above plus a CloudWatch dashboard for claim throughput and review queue d
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: A) CloudWatch Logs for all Lambdas + basic CloudWatch metrics/alarms on errors and throttles
 
 ### Question 6: Secrets/Config Storage
 Where should runtime config (confidence threshold, GDPR rules location) and any secrets live?
@@ -83,14 +83,14 @@ B) Parameter Store for config + AWS Secrets Manager for any secrets
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: A) AWS Systems Manager Parameter Store (config) — simplest for MVP
 
 ---
 
 ## Part B: Execution Checklist (executed after plan approval)
 
-- [ ] Generate `aidlc-docs/construction/U0-infrastructure/infrastructure-design/infrastructure-design.md`
-- [ ] Generate `aidlc-docs/construction/U0-infrastructure/infrastructure-design/deployment-architecture.md`
-- [ ] Generate `aidlc-docs/construction/shared-infrastructure.md` (shared infra reference for all units)
-- [ ] Map every logical component/service to concrete AWS resources + CDK stacks
-- [ ] Update aidlc-state.md and audit.md
+- [x] Generate `aidlc-docs/construction/U0-infrastructure/infrastructure-design/infrastructure-design.md`
+- [x] Generate `aidlc-docs/construction/U0-infrastructure/infrastructure-design/deployment-architecture.md`
+- [x] Generate `aidlc-docs/construction/shared-infrastructure.md` (shared infra reference for all units)
+- [x] Map every logical component/service to concrete AWS resources + CDK stacks
+- [x] Update aidlc-state.md and audit.md
